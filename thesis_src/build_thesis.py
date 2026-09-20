@@ -12,7 +12,7 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
 SRC = "/home/user/Hadi/thesis_src"
-OUT = "/home/user/Hadi/Resaleh_Sath3_Hadi_Shabestani.docx"
+OUT = "/home/user/Hadi/Resaleh_Sath3_Hadi_Shabestani_v2.docx"
 
 TITLE_MAIN = "قلمرو اختیارات ولی فقیه در تعلیق و نقض یک‌جانبه معاهدات بین‌المللی"
 TITLE_SUB = "(مطالعه فقهی ـ حقوقی)"
@@ -66,7 +66,7 @@ def style_run(run, font="B Lotus", size=14, bold=False, color=None, italic=False
         run.font.color.rgb = color
 
 
-def set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, before=0, after=6, line=1.15):
+def set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, before=0, after=6, line=1.2):
     pPr = p._p.get_or_add_pPr()
     bidi = pPr.find(qn("w:bidi"))
     if bidi is None:
