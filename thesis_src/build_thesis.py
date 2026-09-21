@@ -562,16 +562,43 @@ def add_toc(doc):
     c3 = OxmlElement("w:fldChar")
     c3.set(qn("w:fldCharType"), "separate")
     r3._r.append(c3)
-    r4 = p.add_run("فهرست مطالب پس از بازشدن فایل در Word تکمیل می‌شود.")
-    style_run(r4, font="B Lotus", size=12, color=RGBColor(0x88, 0x88, 0x88))
-    r5 = p.add_run()
+    # نتیجه ایستای فهرست: در همه نمایشگرها دیده می‌شود؛ شماره صفحه در Word کامل می‌شود
+    with open(f"{SRC}/00_front.md", encoding="utf-8") as _f:
+        for _ln in _f:
+            _s = _ln.strip()
+            if _s.startswith("# ") and _s[2:].strip() in FRONT_TOC_TITLES:
+                _ep = doc.add_paragraph(style="TOC2")
+                add_runs(_ep, _s[2:].strip(), font="B Lotus", size=13)
+    for _fn in ["01_moqaddame.md", "02_bakhsh1_fasl1.md", "03_bakhsh1_fasl2.md",
+                "04_bakhsh2_fasl3.md", "05_bakhsh2_fasl4.md", "06_bakhsh3_fasl5.md",
+                "07_natije.md", "08_manabe.md", "09_payvast.md"]:
+        with open(f"{SRC}/{_fn}", encoding="utf-8") as _f:
+            for _ln in _f:
+                _s = _ln.strip()
+                if _s.startswith("%% ") and _fn != "00_front.md":
+                    _lv, _tx = 1, _s[3:].strip()
+                elif _s.startswith("#### "):
+                    continue
+                elif _s.startswith("### "):
+                    _lv, _tx = 4, _s[4:].strip()
+                elif _s.startswith("## "):
+                    _lv, _tx = 3, _s[3:].strip()
+                elif _s.startswith("# "):
+                    _lv, _tx = 2, _s[2:].strip()
+                else:
+                    continue
+                _ep = doc.add_paragraph(style=f"TOC{_lv}")
+                add_runs(_ep, _tx, font="B Lotus", size=13)
+    pe = doc.add_paragraph()
+    set_para_rtl(pe, align=WD_ALIGN_PARAGRAPH.RIGHT, after=10)
+    r5 = pe.add_run()
     style_run(r5, font="B Lotus", size=14)
     c5 = OxmlElement("w:fldChar")
     c5.set(qn("w:fldCharType"), "end")
     r5._r.append(c5)
     hint = doc.add_paragraph()
     set_para_rtl(hint, align=WD_ALIGN_PARAGRAPH.RIGHT, after=10)
-    add_runs(hint, "راهنما: اگر فهرست کامل نمایش داده نشد، روی آن کلیک راست کرده و «Update Field» و سپس «Update entire table» را بزنید؛ سپس این جمله را حذف کنید.",
+    add_runs(hint, "راهنما: شماره صفحه‌ها با باز شدن فایل در Word خودکار کامل می‌شود؛ اگر نشد، روی فهرست کلیک راست کرده و «Update Field» و سپس «Update entire table» را بزنید؛ سپس این جمله را حذف کنید.",
              font="B Lotus", size=11, color=RGBColor(0x88, 0x88, 0x88))
 
 
