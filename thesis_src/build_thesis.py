@@ -317,7 +317,7 @@ def add_bakhsh(doc, title):
         doc.add_paragraph()
     add_rule(doc, indent=4, after=12)
     p = doc.add_paragraph(style="TH-Bakhsh")
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=12)
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=12)
     add_runs(p, title, font="B Titr", size=32, bold=True, rtl=True)
     tag_bookmark(p)
     add_rule(doc, indent=4, after=10)
@@ -332,7 +332,7 @@ def add_fasl(doc, title):
     doc.add_paragraph()
     doc.add_paragraph()
     p = doc.add_paragraph(style="TH-Fasl")
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=12, before=6)
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=12, before=6)
     add_frame_borders(p)
     set_keep_next(p)
     add_runs(p, title, font="B Titr", size=22, bold=True, rtl=True)
@@ -475,7 +475,7 @@ def front_heading(doc, title, new_page=True, framed=False):
         p = doc.add_paragraph(style="TH-Front")
     else:
         p = doc.add_paragraph()
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=12, before=6)
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=12, before=6)
     set_keep_next(p)
     if framed:
         add_frame_borders(p)
