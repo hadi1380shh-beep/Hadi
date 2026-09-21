@@ -2,7 +2,7 @@
 
 ## دانلود سریع
 
-**[⬇ دانلود مستقیم فایل Word اصلاح‌شده](https://raw.githubusercontent.com/hadi1380shh-beep/Hadi/arena/01a0c4f2-hadi/Resaleh_Sath_Hadi_Shabestani_Revised.docx)**
+**[⬇ دانلود مستقیم فایل Word اصلاح‌شده](https://github.com/hadi1380shh-beep/Hadi/raw/refs/heads/arena/01a0c4f2-hadi/Resaleh_Sath_Hadi_Shabestani_Revised.docx)**
 
 [مشاهده صفحه فایل در GitHub](https://github.com/hadi1380shh-beep/Hadi/blob/arena/01a0c4f2-hadi/Resaleh_Sath_Hadi_Shabestani_Revised.docx)
 
