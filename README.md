@@ -4,7 +4,7 @@
 
 ## فایل اصلی
 
-- `Resaleh_Sath3_Hadi_Shabestani_Final.docx` — نسخه نهایی رساله (Word)؛ حدود ۱۱۰ صفحه، ۳۶ هزار کلمه، ۱۴۴ پانوشت، بدون جدول
+- `Resaleh_Sath3_Hadi_Shabestani_Final2.docx` — نسخه نهایی رساله (Word)؛ حدود ۱۱۰ صفحه، ۳۶ هزار کلمه، ۱۴۴ پانوشت، بدون جدول
 - `Resaleh_Sath3_Hadi_Shabestani.docx` — نسخه اول (بایگانی)
 
 ## ساختار سورس
