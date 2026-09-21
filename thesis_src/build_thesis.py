@@ -14,8 +14,8 @@ from docx.oxml.ns import qn
 SRC = "/home/user/Hadi/thesis_src"
 OUT = "/home/user/Hadi/Resaleh_Sath3_Hadi_Shabestani_v2.docx"
 
-TITLE_MAIN = "قلمرو اختیارات ولی فقیه در تعلیق و نقض یک‌جانبه معاهدات بین‌المللی"
-TITLE_SUB = "(مطالعه فقهی ـ حقوقی)"
+TITLE_MAIN = "عدول ولی فقیه از تعهدات بین‌المللی دولت اسلامی"
+TITLE_SUB = "از منظر فقه امامیه و حقوق بین‌الملل"
 AUTHOR = "هادی شبستانی"
 
 footnotes = []  # متن پاورقی‌ها به ترتیب
@@ -156,6 +156,50 @@ def add_bottom_border(paragraph, color="1F3864", sz="12"):
     pPr.append(pbdr)
 
 
+def add_top_border(paragraph, color="BFBFBF", sz="6"):
+    pPr = paragraph._p.get_or_add_pPr()
+    pbdr = pPr.find(qn("w:pBdr"))
+    if pbdr is None:
+        pbdr = OxmlElement("w:pBdr")
+        pPr.append(pbdr)
+    top = OxmlElement("w:top")
+    top.set(qn("w:val"), "single")
+    top.set(qn("w:sz"), sz)
+    top.set(qn("w:space"), "6")
+    top.set(qn("w:color"), color)
+    pbdr.append(top)
+
+
+def add_box_border(paragraph, color="BFBFBF", sz="6"):
+    pPr = paragraph._p.get_or_add_pPr()
+    pbdr = OxmlElement("w:pBdr")
+    for edge in ("top", "left", "bottom", "right"):
+        el = OxmlElement(f"w:{edge}")
+        el.set(qn("w:val"), "single")
+        el.set(qn("w:sz"), sz)
+        el.set(qn("w:space"), "8")
+        el.set(qn("w:color"), color)
+        pbdr.append(el)
+    pPr.append(pbdr)
+
+
+def add_shading(paragraph, fill="F2F2F2"):
+    pPr = paragraph._p.get_or_add_pPr()
+    shd = OxmlElement("w:shd")
+    shd.set(qn("w:val"), "clear")
+    shd.set(qn("w:fill"), fill)
+    pPr.append(shd)
+
+
+def set_keep_next(paragraph):
+    pPr = paragraph._p.get_or_add_pPr()
+    kn = pPr.find(qn("w:keepNext"))
+    if kn is None:
+        kn = OxmlElement("w:keepNext")
+        pPr.append(kn)
+    kn.set(qn("w:val"), "1")
+
+
 # ---------- جدول ----------
 
 def add_table(doc, rows, header=True):
@@ -224,18 +268,21 @@ def add_fasl(doc, title):
     p = doc.add_paragraph(style="TH-Fasl")
     set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=10, before=6)
     add_bottom_border(p)
-    add_runs(p, title, font="B Titr", size=20, bold=True)
+    set_keep_next(p)
+    add_runs(p, title, font="B Titr", size=22, bold=True)
 
 
 def add_heading(doc, title, style, font, size):
     p = doc.add_paragraph(style=style)
     set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=6, before=10)
+    set_keep_next(p)
     add_runs(p, title, font=font, size=size, bold=True)
 
 
 def add_body(doc, text):
     p = doc.add_paragraph(style="TH-Body")
     set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=6)
+    p.paragraph_format.first_line_indent = Cm(0.5)
     add_runs(p, text, font="B Lotus", size=14)
 
 
@@ -245,6 +292,8 @@ def add_quote(doc, text):
     pf = p.paragraph_format
     pf.right_indent = Cm(1)
     pf.left_indent = Cm(1)
+    add_shading(p, "F2F2F2")
+    add_box_border(p)
     add_runs(p, text, font="B Badr", size=13, bold=True)
 
 
@@ -252,8 +301,8 @@ def add_bullet(doc, text):
     p = doc.add_paragraph(style="TH-Body")
     set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=4)
     p.paragraph_format.right_indent = Cm(0.75)
-    run = p.add_run("◾ ")
-    style_run(run, font="B Lotus", size=12)
+    run = p.add_run("• ")
+    style_run(run, font="B Lotus", size=14, bold=True)
     add_runs(p, text, font="B Lotus", size=14)
 
 
@@ -276,6 +325,8 @@ def build_content_file(doc, path):
             add_heading(doc, ln[3:].strip(), "TH-Goftar", "B Titr", 16)
         elif ln.startswith("# "):
             add_fasl(doc, ln[2:].strip())
+        elif ln == ">":
+            pass
         elif ln.startswith("> "):
             add_quote(doc, ln[2:].strip())
         elif ln.startswith("- "):
@@ -295,26 +346,29 @@ def build_content_file(doc, path):
 # ---------- صفحات مقدماتی ----------
 
 def add_cover(doc):
-    for _ in range(3):
+    for _ in range(2):
         doc.add_paragraph()
     items = [
-        ("حوزه علمیه …", "B Titr", 16, False),
-        ("رساله علمی سطح سه", "B Titr", 20, True),
-        ("", None, 0, False),
-        (TITLE_MAIN, "B Titr", 20, True),
-        (TITLE_SUB, "B Titr", 18, True),
-        ("", None, 0, False),
-        ("نگارنده: " + AUTHOR, "B Lotus", 16, True),
-        ("استاد راهنما: …………………", "B Lotus", 14, False),
-        ("استاد مشاور: …………………", "B Lotus", 14, False),
-        ("رشته: …………………", "B Lotus", 14, False),
-        ("", None, 0, False),
-        ("۱۴۰۵", "B Lotus", 14, False),
+        ("حوزه‌های علمیه", "B Titr", 16, False, 6),
+        ("رساله علمی سطح سه", "B Titr", 22, True, 12),
+        ("__RULE__", None, 0, False, 12),
+        (TITLE_MAIN, "B Titr", 22, True, 6),
+        (TITLE_SUB, "B Titr", 17, True, 12),
+        ("__RULE__", None, 0, False, 12),
+        ("نگارنده: " + AUTHOR, "B Lotus", 16, True, 10),
+        ("استاد راهنما: …………………………", "B Lotus", 14, False, 6),
+        ("استاد مشاور: …………………………", "B Lotus", 14, False, 6),
+        ("گرایش: فقه و اصول", "B Lotus", 14, False, 12),
+        ("سال تحصیلی ۱۴۰۵ ـ ۱۴۰۶", "B Lotus", 14, False, 6),
     ]
-    for text, font, size, bold in items:
+    for text, font, size, bold, after in items:
         p = doc.add_paragraph()
-        set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=6)
-        if text:
+        set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=after)
+        if text == "__RULE__":
+            p.paragraph_format.right_indent = Cm(3)
+            p.paragraph_format.left_indent = Cm(3)
+            add_bottom_border(p)
+        elif text:
             add_runs(p, text, font=font, size=size, bold=bold)
     page_break(doc)
 
@@ -328,31 +382,48 @@ def add_basmalah(doc):
     page_break(doc)
 
 
+FRONT_TOC_TITLES = ("چکیده", "پیشگفتار")
+FRONT_CENTER_TITLES = ("تقدیم", "سپاسگزاری")
+
+
 def front_heading(doc, title, new_page=True):
     if new_page:
         page_break(doc)
-    p = doc.add_paragraph()
+    if title in FRONT_TOC_TITLES:
+        p = doc.add_paragraph(style="TH-Front")
+    else:
+        p = doc.add_paragraph()
     set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=12, before=6)
+    set_keep_next(p)
     add_runs(p, title, font="B Titr", size=18, bold=True)
 
 
 def build_front_file(doc, path):
     with open(path, encoding="utf-8") as f:
         lines = [ln.rstrip("\n") for ln in f]
-    mode, first = None, True
+    centered, first = False, True
     i = 0
     while i < len(lines):
         ln = lines[i].strip()
         if not ln:
             i += 1
             continue
-        if ln.startswith("@@"):
-            mode = ln.strip("@")
-            first = True
+        if ln.startswith("%%"):
+            i += 1
+            continue
+        if ln == ">":
             i += 1
             continue
         if ln.startswith("# "):
-            front_heading(doc, ln[2:].strip(), new_page=not first)
+            title = ln[2:].strip()
+            front_heading(doc, title, new_page=not first)
+            centered = title in FRONT_CENTER_TITLES
+            first = False
+        elif ln.startswith("> "):
+            add_quote(doc, ln[2:].strip())
+            first = False
+        elif ln.startswith("- "):
+            add_bullet(doc, ln[2:].strip())
             first = False
         elif ln.startswith("|"):
             tbl = []
@@ -362,18 +433,22 @@ def build_front_file(doc, path):
             add_table(doc, parse_table_block(tbl))
             first = False
             continue
+        elif ln.startswith("کلیدواژه‌ها"):
+            p = doc.add_paragraph()
+            set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=6, before=12)
+            run = p.add_run("کلیدواژه‌ها: ")
+            style_run(run, font="B Lotus", size=14, bold=True)
+            rest = ln.split(":", 1)[-1].strip()
+            add_runs(p, rest, font="B Lotus", size=14)
+            first = False
         else:
-            if mode == "KEYWORDS":
-                p = doc.add_paragraph()
-                set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=6, before=12)
-                run = p.add_run("کلیدواژه‌ها: ")
-                style_run(run, font="B Lotus", size=14, bold=True)
-                add_runs(p, ln, font="B Lotus", size=14)
+            p = doc.add_paragraph()
+            if centered:
+                set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=8)
             else:
-                align = WD_ALIGN_PARAGRAPH.CENTER if mode in ("TAGHDIM", "SEPAS") else WD_ALIGN_PARAGRAPH.JUSTIFY
-                p = doc.add_paragraph()
-                set_para_rtl(p, align=align, after=6)
-                add_runs(p, ln, font="B Lotus", size=14)
+                set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=6)
+                p.paragraph_format.first_line_indent = Cm(0.5)
+            add_runs(p, ln, font="B Lotus", size=14)
             first = False
         i += 1
 
@@ -440,6 +515,7 @@ def setup_styles(doc):
     for name, base, outline in [
         ("TH-Bakhsh", "Normal", 0),
         ("TH-Fasl", "Normal", 1),
+        ("TH-Front", "Normal", 1),
         ("TH-Goftar", "Normal", 2),
         ("TH-Band", "Normal", 3),
         ("TH-Sub", "Normal", None),
@@ -547,9 +623,23 @@ def setup_main_header(section):
         jc = OxmlElement("w:jc")
         pPr.append(jc)
     jc.set(qn("w:val"), "left")
+    bidi_p = OxmlElement("w:bidi")
+    bidi_p.set(qn("w:val"), "1")
+    pPr.append(bidi_p)
     run = p.add_run("صفحه ")
     style_run(run, font="B Lotus", size=10)
     add_field(p, "PAGE \\* MERGEFORMAT", font="B Lotus", size=10)
+
+
+def setup_main_footer(section):
+    footer = section.footer
+    footer.is_linked_to_previous = False
+    p = footer.paragraphs[0]
+    p.text = ""
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=0, before=6)
+    add_top_border(p)
+    add_runs(p, "رساله علمی سطح سه ـ " + AUTHOR, font="B Lotus", size=9,
+             color=RGBColor(0x59, 0x56, 0x59))
 
 
 # ---------- پاورقی (تزریق پس از ذخیره) ----------
@@ -629,6 +719,7 @@ def main():
     pg.set(qn("w:start"), "1")
     main_section._sectPr.append(pg)
     setup_main_header(main_section)
+    setup_main_footer(main_section)
     for fn in ["01_moqaddame.md", "02_bakhsh1_fasl1.md", "03_bakhsh1_fasl2.md",
                "04_bakhsh2_fasl3.md", "05_bakhsh2_fasl4.md", "06_bakhsh3_fasl5.md",
                "07_natije.md", "08_manabe.md"]:
