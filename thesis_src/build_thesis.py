@@ -66,7 +66,7 @@ def style_run(run, font="B Lotus", size=14, bold=False, color=None, italic=False
         run.font.color.rgb = color
 
 
-def set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, before=0, after=6, line=1.2):
+def set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, before=0, after=6, line=1.4):
     pPr = p._p.get_or_add_pPr()
     bidi = pPr.find(qn("w:bidi"))
     if bidi is None:
@@ -81,7 +81,7 @@ def set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, before=0, after=6, line=1.
     pf.widow_control = True
 
 
-def set_para_ltr(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, before=0, after=6, line=1.2):
+def set_para_ltr(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, before=0, after=6, line=1.4):
     p.alignment = align
     pf = p.paragraph_format
     pf.space_before = Pt(before)
@@ -310,7 +310,7 @@ def add_bakhsh(doc, title):
     p = doc.add_paragraph(style="TH-Bakhsh")
     set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=12)
     add_runs(p, title, font="B Titr", size=32, bold=True)
-    add_rule(doc, indent=4, after=6)
+    add_rule(doc, indent=4, after=10)
     page_break(doc)
 
 
@@ -330,7 +330,7 @@ def add_fasl(doc, title):
 
 def add_heading(doc, title, style, font, size):
     p = doc.add_paragraph(style=style)
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=6, before=10)
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=8, before=14)
     set_keep_next(p)
     if style == "TH-Goftar":
         add_shading(p, "EDEDED")
@@ -339,7 +339,7 @@ def add_heading(doc, title, style, font, size):
 
 def add_body(doc, text, indent=True):
     p = doc.add_paragraph(style="TH-Body")
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=6)
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=10)
     if indent:
         p.paragraph_format.first_line_indent = Cm(0.5)
     add_runs(p, text, font="B Lotus", size=14)
@@ -347,7 +347,7 @@ def add_body(doc, text, indent=True):
 
 def add_quote(doc, text):
     p = doc.add_paragraph(style="TH-Quote")
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=8, before=8)
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=12, before=12)
     pf = p.paragraph_format
     pf.right_indent = Cm(1)
     pf.left_indent = Cm(1)
@@ -358,7 +358,7 @@ def add_quote(doc, text):
 
 def add_bullet(doc, text):
     p = doc.add_paragraph(style="TH-Body")
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=4)
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=6)
     p.paragraph_format.right_indent = Cm(0.75)
     run = p.add_run("• ")
     style_run(run, font="B Lotus", size=14, bold=True)
@@ -447,7 +447,7 @@ def add_basmalah(doc):
     p = doc.add_paragraph()
     set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=12)
     add_runs(p, "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ", font="B Titr", size=22, bold=True)
-    add_rule(doc, indent=5, after=6)
+    add_rule(doc, indent=5, after=10)
     page_break(doc)
 
 
@@ -512,7 +512,7 @@ def build_front_file(doc, path):
             continue
         elif ln.startswith("کلیدواژه‌ها"):
             p = doc.add_paragraph()
-            set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=6, before=12)
+            set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=10, before=12)
             run = p.add_run("کلیدواژه‌ها: ")
             style_run(run, font="B Lotus", size=14, bold=True)
             rest = ln.split(":", 1)[-1].strip()
@@ -521,7 +521,7 @@ def build_front_file(doc, path):
             no_indent = False
         elif is_latin(ln):
             p = doc.add_paragraph()
-            set_para_ltr(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=6)
+            set_para_ltr(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=10)
             if not no_indent:
                 p.paragraph_format.first_line_indent = Cm(0.5)
             add_runs(p, ln, font="B Lotus", size=13)
@@ -530,9 +530,9 @@ def build_front_file(doc, path):
         else:
             p = doc.add_paragraph()
             if centered:
-                set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=8)
+                set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=10)
             else:
-                set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=6)
+                set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=10)
                 if not no_indent:
                     p.paragraph_format.first_line_indent = Cm(0.5)
             add_runs(p, ln, font="B Lotus", size=14)
@@ -544,7 +544,7 @@ def build_front_file(doc, path):
 def add_toc(doc):
     front_heading(doc, "فهرست مطالب", new_page=True, framed=True)
     p = doc.add_paragraph()
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=6)
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=10)
     # فیلد فهرست خودکار
     r1 = p.add_run()
     style_run(r1, font="B Lotus", size=14)
@@ -570,7 +570,7 @@ def add_toc(doc):
     c5.set(qn("w:fldCharType"), "end")
     r5._r.append(c5)
     hint = doc.add_paragraph()
-    set_para_rtl(hint, align=WD_ALIGN_PARAGRAPH.RIGHT, after=6)
+    set_para_rtl(hint, align=WD_ALIGN_PARAGRAPH.RIGHT, after=10)
     add_runs(hint, "راهنما: اگر فهرست کامل نمایش داده نشد، روی آن کلیک راست کرده و «Update Field» و سپس «Update entire table» را بزنید؛ سپس این جمله را حذف کنید.",
              font="B Lotus", size=11, color=RGBColor(0x88, 0x88, 0x88))
 
