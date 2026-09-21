@@ -66,7 +66,7 @@ def style_run(run, font="B Lotus", size=14, bold=False, color=None, italic=False
         run.font.color.rgb = color
 
 
-def set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, before=0, after=6, line=1.4):
+def set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, before=0, after=6, line=1.4):
     pPr = p._p.get_or_add_pPr()
     bidi = pPr.find(qn("w:bidi"))
     if bidi is None:
@@ -352,7 +352,7 @@ def add_heading(doc, title, style, font, size):
 
 def add_body(doc, text, indent=True):
     p = doc.add_paragraph(style="TH-Body")
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=10)
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=10)
     if indent:
         p.paragraph_format.first_line_indent = Cm(0.5)
     add_runs(p, text, font="B Lotus", size=14)
@@ -371,7 +371,7 @@ def add_quote(doc, text):
 
 def add_bullet(doc, text):
     p = doc.add_paragraph(style="TH-Body")
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=6)
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=6)
     p.paragraph_format.right_indent = Cm(0.75)
     run = p.add_run("• ")
     style_run(run, font="B Lotus", size=14, bold=True)
@@ -527,7 +527,7 @@ def build_front_file(doc, path):
             continue
         elif ln.startswith("کلیدواژه‌ها"):
             p = doc.add_paragraph()
-            set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=10, before=12)
+            set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=10, before=12)
             run = p.add_run("کلیدواژه‌ها: ")
             style_run(run, font="B Lotus", size=14, bold=True)
             rest = ln.split(":", 1)[-1].strip()
@@ -547,7 +547,7 @@ def build_front_file(doc, path):
             if centered:
                 set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=10)
             else:
-                set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=10)
+                set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=10)
                 if not no_indent:
                     p.paragraph_format.first_line_indent = Cm(0.5)
             add_runs(p, ln, font="B Lotus", size=14)
@@ -824,7 +824,7 @@ def build_footnotes_xml():
     parts.append('<w:footnote w:id="1" w:type="continuationSeparator"><w:p><w:r><w:continuationSeparator/></w:r></w:p></w:footnote>')
     for i, text in enumerate(footnotes, start=2):
         parts.append(
-            f'<w:footnote w:id="{i}"><w:p><w:pPr><w:bidi w:val="1"/><w:jc w:val="both"/>'
+            f'<w:footnote w:id="{i}"><w:p><w:pPr><w:bidi w:val="1"/><w:jc w:val="right"/>'
             f'<w:spacing w:after="40" w:line="240" w:lineRule="auto"/></w:pPr>'
             f'<w:r><w:rPr><w:rFonts w:ascii="B Lotus" w:hAnsi="B Lotus" w:cs="B Lotus"/>'
             f'<w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr><w:footnoteRef/></w:r>'
