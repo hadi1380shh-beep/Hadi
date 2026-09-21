@@ -15,7 +15,7 @@ from lxml import etree
 import sim_paginate as S
 
 W_SCALE = 1.56  # کالیبره با مشاهده واقعی کاربر: بیلد قدیمی = ۸۱ صفحه
-OUT = '/home/user/Hadi/Resaleh_Sath3_Hadi_Shabestani_v2.docx'
+OUT = '/home/user/Hadi/Resaleh_Sath3_Hadi_Shabestani_Final.docx'
 
 WNS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
 NS = {'w': WNS}

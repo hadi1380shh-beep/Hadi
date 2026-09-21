@@ -12,7 +12,7 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
 SRC = "/home/user/Hadi/thesis_src"
-OUT = "/home/user/Hadi/Resaleh_Sath3_Hadi_Shabestani_v2.docx"
+OUT = "/home/user/Hadi/Resaleh_Sath3_Hadi_Shabestani_Final.docx"
 
 TITLE_MAIN = "عدول ولی فقیه از تعهدات بین‌المللی دولت اسلامی"
 TITLE_SUB = "از منظر فقه امامیه و حقوق بین‌الملل"
