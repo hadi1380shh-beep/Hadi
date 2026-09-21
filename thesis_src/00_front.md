@@ -73,3 +73,15 @@
 درباره ساختار رساله هم توضیحی بدهم. رساله در سه بخش و پنج فصل آمده که منطقش روشن است: اول باید بدانیم درباره چه حرف می‌زنیم (مفاهیم و کلیات)، بعد باید حکم شرعی‌اش را پیدا کنیم (ادله وجوب وفا و مبانی جواز عدول)، و آخر باید آثار حقوقی‌اش را بسنجیم (مسئولیت بین‌المللی و حقوق اساسی). این ترتیب از کلی به جزئی و از مبنا به حکم و از نظر به عمل است؛ و اگر خواننده‌ای فصل‌ها را به همین ترتیب بخواند، سیر بحث برایش طبیعی و روان خواهد بود.
 
 نکته آخر این‌که: این رساله را نه برای قفسه کتابخانه نوشته‌ام، بلکه برای میز تصمیم‌گیر. اگر روزی یکی از آقایانی که در جلسات سرنوشت‌ساز می‌نشینند، این صفحات را ورق بزند و حتی یک ضابطه‌اش به کارش بیاید، من اجر خودم را گرفته‌ام. و اگر هم نخوانند، دست‌کم خودم در این مسیر چیزها آموخته‌ام که هیچ‌چیز دیگری نمی‌توانست بیاموزدم. والحمدلله رب العالمین.
+
+%% چکیده انگلیسی
+
+# Abstract
+
+This thesis addresses a single, pressing question: if the continued performance of an international treaty turns harmful to the Islamic state, may the Guardian Jurist (Vali-e Faqih) withdraw from it? And if so, on what basis, under what conditions, and with what consequences? The question lies at the intersection of three normative systems — Imami jurisprudence, the constitutional law of the Islamic Republic of Iran, and public international law — and none of the three can answer it alone.
+
+The method is library-based, analytical and inferential: ijtihadi reasoning in fiqh, textual and case-law analysis in international law, and constitutional interpretation in domestic law. The thesis is organized in three parts and five chapters: concepts and preliminaries; the juristic analysis (the obligation of fidelity to treaties and the grounds for lawful withdrawal); and the legal analysis (international responsibility and the constitutional status of the decision).
+
+The findings are five. First, the primary rule is the obligation of fidelity (wafa), established by Quranic verses, traditions, the practice of the Infallibles, and reason. Second, departure from this rule is lawful only as a governmental decision (hukm hukumati) of the Guardian Jurist in a situation of genuine conflict of interests (tazahum), supported by four independent grounds: tazahum itself, the theory of governmental ordinance, the rules of negation of harm and hardship, and the paramount duty of preserving the Islamic system. Third, this permission is fenced by eight practical conditions that together form a decision-maker's checklist. Fourth, three levels of analysis must be strictly separated: juristic permissibility, domestic constitutionality, and international responsibility — each with its own forum and criteria. Fifth, the Guardian Jurist's authority in this domain is implicit and guardianship-based rather than express, and is best explained through a fourfold division of authority (express, implicit, guardianship-based, governmental).
+
+**Keywords:** Guardian Jurist, international obligations, treaties, fidelity to covenants, governmental ordinance, tazahum, expediency, international responsibility, Vienna Convention, constitution.
