@@ -669,6 +669,9 @@ def setup_styles(doc):
 
 
 def setup_page(section):
+    sectPr = section._sectPr
+    for pb in sectPr.findall(qn("w:pgBorders")):
+        sectPr.remove(pb)
     section.page_width = Cm(21)
     section.page_height = Cm(29.7)
     section.right_margin = Cm(3)
