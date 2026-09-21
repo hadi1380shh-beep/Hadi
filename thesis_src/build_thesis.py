@@ -332,7 +332,7 @@ def add_fasl(doc, title):
     doc.add_paragraph()
     doc.add_paragraph()
     p = doc.add_paragraph(style="TH-Fasl")
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=12, before=6)
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=18, before=6)
     add_frame_borders(p)
     set_keep_next(p)
     add_runs(p, title, font="B Titr", size=22, bold=True, rtl=True)
@@ -341,7 +341,7 @@ def add_fasl(doc, title):
 
 def add_heading(doc, title, style, font, size):
     p = doc.add_paragraph(style=style)
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=8, before=14)
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=14, before=14)
     set_keep_next(p)
     if style == "TH-Goftar":
         add_shading(p, "EDEDED")
@@ -475,7 +475,7 @@ def front_heading(doc, title, new_page=True, framed=False):
         p = doc.add_paragraph(style="TH-Front")
     else:
         p = doc.add_paragraph()
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=12, before=6)
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=16, before=6)
     set_keep_next(p)
     if framed:
         add_frame_borders(p)
