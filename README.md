@@ -5,6 +5,7 @@
 ## فایل اصلی
 
 - `Resaleh_Sath3_Hadi_Shabestani_Final2.docx` — نسخه نهایی رساله (Word)؛ حدود ۱۱۰ صفحه، ۳۶ هزار کلمه، ۱۴۴ پانوشت، بدون جدول
+- `Resaleh_Sath3_Hadi_Shabestani_Final2.pdf` — همان رساله به‌صورت PDF (۱۲۲ صفحه؛ فهرست و شماره صفحات خودسازگار)
 - `Resaleh_Sath3_Hadi_Shabestani.docx` — نسخه اول (بایگانی)
 
 ## ساختار سورس
@@ -20,12 +21,20 @@
 - `thesis_src/08_manabe.md` — فهرست منابع (۸ دسته + یادداشت‌های کتاب‌شناختی)
 - `thesis_src/09_payvast.md` — پیوست‌ها (چک‌لیست تصمیم، اصول قانون اساسی، مواد وین، گاه‌شمار، عهدنامه مالک، واژه‌نامه)
 - `thesis_src/build_thesis.py` — سازنده فایل Word (قالب شیوه‌نامه حوزوی: B Lotus / B Titr / B Badr)
+- `thesis_src/build_pdf.py` — سازنده فایل PDF از روی Word نهایی (فونت‌های B + DejaVu، صفحه‌بندی مستقل، وارسی خودکار فهرست)
 
 ## بازسازی فایل Word
 
 ```bash
 pip install --break-system-packages python-docx
 python3 thesis_src/build_thesis.py
+```
+
+## ساخت فایل PDF
+
+```bash
+pip install --break-system-packages reportlab arabic_reshaper python-bidi pypdf pymupdf matplotlib fonttools
+python3 thesis_src/build_pdf.py
 ```
 
 ## نکته
