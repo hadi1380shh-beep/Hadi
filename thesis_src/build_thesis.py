@@ -310,6 +310,7 @@ def add_bakhsh(doc, title):
     p = doc.add_paragraph(style="TH-Bakhsh")
     set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=12)
     add_runs(p, title, font="B Titr", size=32, bold=True)
+    tag_bookmark(p)
     add_rule(doc, indent=4, after=10)
     page_break(doc)
 
@@ -326,6 +327,7 @@ def add_fasl(doc, title):
     add_frame_borders(p)
     set_keep_next(p)
     add_runs(p, title, font="B Titr", size=22, bold=True)
+    tag_bookmark(p)
 
 
 def add_heading(doc, title, style, font, size):
@@ -335,6 +337,8 @@ def add_heading(doc, title, style, font, size):
     if style == "TH-Goftar":
         add_shading(p, "EDEDED")
     add_runs(p, title, font=font, size=size, bold=True)
+    if style in ("TH-Goftar", "TH-Band"):
+        tag_bookmark(p)
 
 
 def add_body(doc, text, indent=True):
@@ -467,6 +471,8 @@ def front_heading(doc, title, new_page=True, framed=False):
     if framed:
         add_frame_borders(p)
     add_runs(p, title, font="B Titr", size=18, bold=True)
+    if title in FRONT_TOC_TITLES:
+        tag_bookmark(p)
 
 
 def build_front_file(doc, path):
@@ -541,6 +547,81 @@ def build_front_file(doc, path):
         i += 1
 
 
+# ---------- فهرست مطالب کتابی: عنوان + نقطه‌چین + شماره صفحه ----------
+
+TOC_MARKS = []  # (سطح، عنوان) به ترتیب سند
+
+def scan_toc_marks():
+    TOC_MARKS.clear()
+    with open(f"{SRC}/00_front.md", encoding="utf-8") as _f:
+        for _ln in _f:
+            _s = _ln.strip()
+            if _s.startswith("# ") and _s[2:].strip() in FRONT_TOC_TITLES:
+                TOC_MARKS.append((2, _s[2:].strip()))
+    for _fn in ["01_moqaddame.md", "02_bakhsh1_fasl1.md", "03_bakhsh1_fasl2.md",
+                "04_bakhsh2_fasl3.md", "05_bakhsh2_fasl4.md", "06_bakhsh3_fasl5.md",
+                "07_natije.md", "08_manabe.md", "09_payvast.md"]:
+        with open(f"{SRC}/{_fn}", encoding="utf-8") as _f:
+            for _ln in _f:
+                _s = _ln.strip()
+                if _s.startswith("%% ") and _fn != "00_front.md":
+                    TOC_MARKS.append((1, _s[3:].strip()))
+                elif _s.startswith("#### "):
+                    continue
+                elif _s.startswith("### "):
+                    TOC_MARKS.append((4, _s[4:].strip()))
+                elif _s.startswith("## "):
+                    TOC_MARKS.append((3, _s[3:].strip()))
+                elif _s.startswith("# "):
+                    TOC_MARKS.append((2, _s[2:].strip()))
+
+
+def toc_mark_name(i):
+    return f"_Toc{i + 1:06d}"
+
+
+_mark_seq = [0]
+
+def tag_bookmark(paragraph):
+    _mark_seq[0] += 1
+    name = toc_mark_name(_mark_seq[0] - 1)
+    bs = OxmlElement("w:bookmarkStart")
+    bs.set(qn("w:id"), str(_mark_seq[0]))
+    bs.set(qn("w:name"), name)
+    be = OxmlElement("w:bookmarkEnd")
+    be.set(qn("w:id"), str(_mark_seq[0]))
+    pPr = paragraph._p.find(qn("w:pPr"))
+    if pPr is not None:
+        pPr.addnext(bs)
+    else:
+        paragraph._p.insert(0, bs)
+    paragraph._p.append(be)
+
+
+def add_pageref(paragraph, name, font="B Lotus", size=13):
+    r1 = paragraph.add_run()
+    style_run(r1, font=font, size=size)
+    c1 = OxmlElement("w:fldChar")
+    c1.set(qn("w:fldCharType"), "begin")
+    r1._r.append(c1)
+    r2 = paragraph.add_run()
+    style_run(r2, font=font, size=size)
+    it = OxmlElement("w:instrText")
+    it.set(qn("xml:space"), "preserve")
+    it.text = f" PAGEREF {name} \\h "
+    r2._r.append(it)
+    r3 = paragraph.add_run()
+    style_run(r3, font=font, size=size)
+    c3 = OxmlElement("w:fldChar")
+    c3.set(qn("w:fldCharType"), "separate")
+    r3._r.append(c3)
+    r5 = paragraph.add_run()
+    style_run(r5, font=font, size=size)
+    c5 = OxmlElement("w:fldChar")
+    c5.set(qn("w:fldCharType"), "end")
+    r5._r.append(c5)
+
+
 def add_toc(doc):
     front_heading(doc, "فهرست مطالب", new_page=True, framed=True)
     p = doc.add_paragraph()
@@ -562,33 +643,13 @@ def add_toc(doc):
     c3 = OxmlElement("w:fldChar")
     c3.set(qn("w:fldCharType"), "separate")
     r3._r.append(c3)
-    # نتیجه ایستای فهرست: در همه نمایشگرها دیده می‌شود؛ شماره صفحه در Word کامل می‌شود
-    with open(f"{SRC}/00_front.md", encoding="utf-8") as _f:
-        for _ln in _f:
-            _s = _ln.strip()
-            if _s.startswith("# ") and _s[2:].strip() in FRONT_TOC_TITLES:
-                _ep = doc.add_paragraph(style="TOC2")
-                add_runs(_ep, _s[2:].strip(), font="B Lotus", size=13)
-    for _fn in ["01_moqaddame.md", "02_bakhsh1_fasl1.md", "03_bakhsh1_fasl2.md",
-                "04_bakhsh2_fasl3.md", "05_bakhsh2_fasl4.md", "06_bakhsh3_fasl5.md",
-                "07_natije.md", "08_manabe.md", "09_payvast.md"]:
-        with open(f"{SRC}/{_fn}", encoding="utf-8") as _f:
-            for _ln in _f:
-                _s = _ln.strip()
-                if _s.startswith("%% ") and _fn != "00_front.md":
-                    _lv, _tx = 1, _s[3:].strip()
-                elif _s.startswith("#### "):
-                    continue
-                elif _s.startswith("### "):
-                    _lv, _tx = 4, _s[4:].strip()
-                elif _s.startswith("## "):
-                    _lv, _tx = 3, _s[3:].strip()
-                elif _s.startswith("# "):
-                    _lv, _tx = 2, _s[2:].strip()
-                else:
-                    continue
-                _ep = doc.add_paragraph(style=f"TOC{_lv}")
-                add_runs(_ep, _tx, font="B Lotus", size=13)
+    # نتیجه ایستای فهرست به سبک کتاب: عنوان + نقطه‌چین + شماره صفحه (فیلد زنده)
+    for _i, (_lv, _tx) in enumerate(TOC_MARKS):
+        _ep = doc.add_paragraph(style=f"TOC{_lv}")
+        add_runs(_ep, _tx, font="B Lotus", size=13)
+        _tr = _ep.add_run("\t")
+        style_run(_tr, font="B Lotus", size=13)
+        add_pageref(_ep, toc_mark_name(_i))
     pe = doc.add_paragraph()
     set_para_rtl(pe, align=WD_ALIGN_PARAGRAPH.RIGHT, after=10)
     r5 = pe.add_run()
@@ -674,7 +735,7 @@ def setup_styles(doc):
             pPr.append(ind)
         tabs = OxmlElement("w:tabs")
         tab = OxmlElement("w:tab")
-        tab.set(qn("w:val"), "right")
+        tab.set(qn("w:val"), "left")
         tab.set(qn("w:leader"), "dot")
         tab.set(qn("w:pos"), "9072")
         tabs.append(tab)
@@ -814,6 +875,7 @@ def main():
     front_section = doc.sections[1]
     setup_page(front_section)
     add_basmalah(doc)
+    scan_toc_marks()
     build_front_file(doc, f"{SRC}/00_front.md")
     add_toc(doc)
 
@@ -843,7 +905,9 @@ def main():
         with open(fp, encoding="utf-8") as f:
             words += len(f.read().split())
     print(f"OK: {OUT}")
-    print(f"words(source)={words} footnotes={len(footnotes)}")
+    print(f"words(source)={words} footnotes={len(footnotes)} toc-marks={len(TOC_MARKS)} bookmarks={_mark_seq[0]}")
+    if _mark_seq[0] != len(TOC_MARKS):
+        print("WARNING: bookmark/mark mismatch!")
 
 
 if __name__ == "__main__":
