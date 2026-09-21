@@ -240,7 +240,7 @@ def set_keep_next(paragraph):
 
 def add_rule(doc, indent=3, after=12, color="1F3864", sz="12"):
     p = doc.add_paragraph()
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=after)
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=after)
     p.paragraph_format.right_indent = Cm(indent)
     p.paragraph_format.left_indent = Cm(indent)
     add_bottom_border(p, color=color, sz=sz)
@@ -276,7 +276,7 @@ def add_table(doc, rows, header=True):
             cell = table.cell(i, j)
             cell.text = ""
             p = cell.paragraphs[0]
-            set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=2, before=2)
+            set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=2, before=2)
             add_runs(p, text.strip(), font="B Lotus", size=12, bold=is_head)
             if is_head:
                 tcPr = cell._tc.get_or_add_tcPr()
@@ -360,7 +360,7 @@ def add_body(doc, text, indent=True):
 
 def add_quote(doc, text):
     p = doc.add_paragraph(style="TH-Quote")
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=12, before=12)
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=12, before=12)
     pf = p.paragraph_format
     pf.right_indent = Cm(1)
     pf.left_indent = Cm(1)
@@ -445,7 +445,7 @@ def add_cover(doc):
     ]
     for text, font, size, bold, after in items:
         p = doc.add_paragraph()
-        set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=after)
+        set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=after)
         if text == "__RULE__":
             p.paragraph_format.right_indent = Cm(3)
             p.paragraph_format.left_indent = Cm(3)
@@ -458,7 +458,7 @@ def add_basmalah(doc):
     for _ in range(5):
         doc.add_paragraph()
     p = doc.add_paragraph()
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=12)
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=12)
     add_runs(p, "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ", font="B Titr", size=22, bold=True)
     add_rule(doc, indent=5, after=10)
     page_break(doc)
@@ -545,7 +545,7 @@ def build_front_file(doc, path):
         else:
             p = doc.add_paragraph()
             if centered:
-                set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=10)
+                set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=10)
             else:
                 set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=10)
                 if not no_indent:
@@ -805,7 +805,7 @@ def setup_main_footer(section):
     bidi = OxmlElement("w:bidi")
     bidi.set(qn("w:val"), "1")
     pPr.append(bidi)
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
     pf = p.paragraph_format
     pf.space_before = Pt(4)
     pf.space_after = Pt(0)
