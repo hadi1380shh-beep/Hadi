@@ -114,22 +114,31 @@ def add_footnote_ref(paragraph, note_text, font="B Lotus", size=14):
     run._r.append(ref)
 
 
-def add_runs(paragraph, text, font="B Lotus", size=14, bold=False, color=None):
+def add_runs(paragraph, text, font="B Lotus", size=14, bold=False, color=None, rtl=False):
     pos = 0
     for m in TOKEN_RE.finditer(text):
         if m.start() > pos:
             run = paragraph.add_run(text[pos:m.start()])
             style_run(run, font=font, size=size, bold=bold, color=color)
+            if rtl:
+                rPr = run._r.get_or_add_rPr()
+                rPr.append(OxmlElement("w:rtl"))
         tok = m.group(0)
         if tok.startswith("{{fn:"):
             add_footnote_ref(paragraph, tok[5:-2].strip(), font=font, size=size)
         else:
             run = paragraph.add_run(tok[2:-2])
             style_run(run, font=font, size=size, bold=True, color=color)
+            if rtl:
+                rPr = run._r.get_or_add_rPr()
+                rPr.append(OxmlElement("w:rtl"))
         pos = m.end()
     if pos < len(text):
         run = paragraph.add_run(text[pos:])
         style_run(run, font=font, size=size, bold=bold, color=color)
+        if rtl:
+            rPr = run._r.get_or_add_rPr()
+            rPr.append(OxmlElement("w:rtl"))
 
 
 def add_field(paragraph, instr, font="B Lotus", size=10, bold=False, color=None):
@@ -309,7 +318,7 @@ def add_bakhsh(doc, title):
     add_rule(doc, indent=4, after=12)
     p = doc.add_paragraph(style="TH-Bakhsh")
     set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=12)
-    add_runs(p, title, font="B Titr", size=32, bold=True)
+    add_runs(p, title, font="B Titr", size=32, bold=True, rtl=True)
     tag_bookmark(p)
     add_rule(doc, indent=4, after=10)
     page_break(doc)
@@ -326,7 +335,7 @@ def add_fasl(doc, title):
     set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=12, before=6)
     add_frame_borders(p)
     set_keep_next(p)
-    add_runs(p, title, font="B Titr", size=22, bold=True)
+    add_runs(p, title, font="B Titr", size=22, bold=True, rtl=True)
     tag_bookmark(p)
 
 
@@ -336,7 +345,7 @@ def add_heading(doc, title, style, font, size):
     set_keep_next(p)
     if style == "TH-Goftar":
         add_shading(p, "EDEDED")
-    add_runs(p, title, font=font, size=size, bold=True)
+    add_runs(p, title, font=font, size=size, bold=True, rtl=True)
     if style in ("TH-Goftar", "TH-Band"):
         tag_bookmark(p)
 
@@ -470,7 +479,7 @@ def front_heading(doc, title, new_page=True, framed=False):
     set_keep_next(p)
     if framed:
         add_frame_borders(p)
-    add_runs(p, title, font="B Titr", size=18, bold=True)
+    add_runs(p, title, font="B Titr", size=18, bold=True, rtl=True)
     if title in FRONT_TOC_TITLES:
         tag_bookmark(p)
 
@@ -646,7 +655,14 @@ def add_toc(doc):
     # نتیجه ایستای فهرست به سبک کتاب: عنوان + نقطه‌چین + شماره صفحه (فیلد زنده)
     for _i, (_lv, _tx) in enumerate(TOC_MARKS):
         _ep = doc.add_paragraph(style=f"TOC{_lv}")
-        add_runs(_ep, _tx, font="B Lotus", size=13)
+        _epPr = _ep._p.get_or_add_pPr()
+        _bidi = OxmlElement("w:bidi")
+        _bidi.set(qn("w:val"), "1")
+        _epPr.append(_bidi)
+        _jc = OxmlElement("w:jc")
+        _jc.set(qn("w:val"), "right")
+        _epPr.append(_jc)
+        add_runs(_ep, _tx, font="B Lotus", size=13, rtl=True)
         _tr = _ep.add_run("\t")
         style_run(_tr, font="B Lotus", size=13)
         add_pageref(_ep, toc_mark_name(_i))
