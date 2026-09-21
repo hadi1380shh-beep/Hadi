@@ -81,6 +81,22 @@ def set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, before=0, after=6, line=1.
     pf.widow_control = True
 
 
+def set_para_ltr(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, before=0, after=6, line=1.2):
+    p.alignment = align
+    pf = p.paragraph_format
+    pf.space_before = Pt(before)
+    pf.space_after = Pt(after)
+    pf.line_spacing = line
+    pf.widow_control = True
+
+
+def is_latin(text):
+    letters = [c for c in text if c.isalpha()]
+    if not letters:
+        return False
+    return sum(1 for c in letters if ord(c) < 128) / len(letters) > 0.5
+
+
 TOKEN_RE = re.compile(r"(\*\*.+?\*\*|\{\{fn:.*?\}\})", re.DOTALL)
 
 
@@ -170,6 +186,19 @@ def add_top_border(paragraph, color="BFBFBF", sz="6"):
     pbdr.append(top)
 
 
+def add_frame_borders(paragraph, color="1F3864", sz="12"):
+    pPr = paragraph._p.get_or_add_pPr()
+    pbdr = OxmlElement("w:pBdr")
+    for edge in ("top", "bottom"):
+        el = OxmlElement(f"w:{edge}")
+        el.set(qn("w:val"), "single")
+        el.set(qn("w:sz"), sz)
+        el.set(qn("w:space"), "8")
+        el.set(qn("w:color"), color)
+        pbdr.append(el)
+    pPr.append(pbdr)
+
+
 def add_box_border(paragraph, color="BFBFBF", sz="6"):
     pPr = paragraph._p.get_or_add_pPr()
     pbdr = OxmlElement("w:pBdr")
@@ -198,6 +227,29 @@ def set_keep_next(paragraph):
         kn = OxmlElement("w:keepNext")
         pPr.append(kn)
     kn.set(qn("w:val"), "1")
+
+
+def add_rule(doc, indent=3, after=12, color="1F3864", sz="12"):
+    p = doc.add_paragraph()
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=after)
+    p.paragraph_format.right_indent = Cm(indent)
+    p.paragraph_format.left_indent = Cm(indent)
+    add_bottom_border(p, color=color, sz=sz)
+    return p
+
+
+def add_page_border(section, color="1F3864", sz="12"):
+    sectPr = section._sectPr
+    borders = OxmlElement("w:pgBorders")
+    borders.set(qn("w:offsetFrom"), "page")
+    for edge in ("top", "left", "bottom", "right"):
+        el = OxmlElement(f"w:{edge}")
+        el.set(qn("w:val"), "single")
+        el.set(qn("w:sz"), sz)
+        el.set(qn("w:space"), "24")
+        el.set(qn("w:color"), color)
+        borders.append(el)
+    sectPr.append(borders)
 
 
 # ---------- جدول ----------
@@ -252,11 +304,13 @@ def add_bakhsh(doc, title):
     if not first_content_block:
         page_break(doc)
     first_content_block = False
-    for _ in range(4):
+    for _ in range(3):
         doc.add_paragraph()
+    add_rule(doc, indent=4, after=12)
     p = doc.add_paragraph(style="TH-Bakhsh")
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=6)
-    add_runs(p, title, font="B Titr", size=30, bold=True)
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=12)
+    add_runs(p, title, font="B Titr", size=32, bold=True)
+    add_rule(doc, indent=4, after=6)
     page_break(doc)
 
 
@@ -265,9 +319,11 @@ def add_fasl(doc, title):
     if not first_content_block:
         page_break(doc)
     first_content_block = False
+    doc.add_paragraph()
+    doc.add_paragraph()
     p = doc.add_paragraph(style="TH-Fasl")
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=10, before=6)
-    add_bottom_border(p)
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=12, before=6)
+    add_frame_borders(p)
     set_keep_next(p)
     add_runs(p, title, font="B Titr", size=22, bold=True)
 
@@ -276,13 +332,16 @@ def add_heading(doc, title, style, font, size):
     p = doc.add_paragraph(style=style)
     set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=6, before=10)
     set_keep_next(p)
+    if style == "TH-Goftar":
+        add_shading(p, "EDEDED")
     add_runs(p, title, font=font, size=size, bold=True)
 
 
-def add_body(doc, text):
+def add_body(doc, text, indent=True):
     p = doc.add_paragraph(style="TH-Body")
     set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=6)
-    p.paragraph_format.first_line_indent = Cm(0.5)
+    if indent:
+        p.paragraph_format.first_line_indent = Cm(0.5)
     add_runs(p, text, font="B Lotus", size=14)
 
 
@@ -309,6 +368,7 @@ def add_bullet(doc, text):
 def build_content_file(doc, path):
     with open(path, encoding="utf-8") as f:
         lines = [ln.rstrip("\n") for ln in f]
+    no_indent = True
     i = 0
     while i < len(lines):
         ln = lines[i].strip()
@@ -317,29 +377,38 @@ def build_content_file(doc, path):
             continue
         if ln.startswith("%%"):
             add_bakhsh(doc, ln[2:].strip())
+            no_indent = True
         elif ln.startswith("#### "):
             add_heading(doc, ln[5:].strip(), "TH-Sub", "B Lotus", 14)
+            no_indent = True
         elif ln.startswith("### "):
             add_heading(doc, ln[4:].strip(), "TH-Band", "B Traffic", 14)
+            no_indent = True
         elif ln.startswith("## "):
             add_heading(doc, ln[3:].strip(), "TH-Goftar", "B Titr", 16)
+            no_indent = True
         elif ln.startswith("# "):
             add_fasl(doc, ln[2:].strip())
+            no_indent = True
         elif ln == ">":
             pass
         elif ln.startswith("> "):
             add_quote(doc, ln[2:].strip())
+            no_indent = True
         elif ln.startswith("- "):
             add_bullet(doc, ln[2:].strip())
+            no_indent = True
         elif ln.startswith("|"):
             tbl = []
             while i < len(lines) and lines[i].strip().startswith("|"):
                 tbl.append(lines[i].strip())
                 i += 1
             add_table(doc, parse_table_block(tbl))
+            no_indent = True
             continue
         else:
-            add_body(doc, ln)
+            add_body(doc, ln, indent=not no_indent)
+            no_indent = False
         i += 1
 
 
@@ -370,15 +439,15 @@ def add_cover(doc):
             add_bottom_border(p)
         elif text:
             add_runs(p, text, font=font, size=size, bold=bold)
-    page_break(doc)
 
 
 def add_basmalah(doc):
     for _ in range(5):
         doc.add_paragraph()
     p = doc.add_paragraph()
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=6)
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=12)
     add_runs(p, "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ", font="B Titr", size=22, bold=True)
+    add_rule(doc, indent=5, after=6)
     page_break(doc)
 
 
@@ -386,7 +455,7 @@ FRONT_TOC_TITLES = ("چکیده", "پیشگفتار")
 FRONT_CENTER_TITLES = ("تقدیم", "سپاسگزاری")
 
 
-def front_heading(doc, title, new_page=True):
+def front_heading(doc, title, new_page=True, framed=False):
     if new_page:
         page_break(doc)
     if title in FRONT_TOC_TITLES:
@@ -395,13 +464,15 @@ def front_heading(doc, title, new_page=True):
         p = doc.add_paragraph()
     set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=12, before=6)
     set_keep_next(p)
+    if framed:
+        add_frame_borders(p)
     add_runs(p, title, font="B Titr", size=18, bold=True)
 
 
 def build_front_file(doc, path):
     with open(path, encoding="utf-8") as f:
         lines = [ln.rstrip("\n") for ln in f]
-    centered, first = False, True
+    centered, first, no_indent = False, True, True
     i = 0
     while i < len(lines):
         ln = lines[i].strip()
@@ -417,14 +488,19 @@ def build_front_file(doc, path):
         if ln.startswith("# "):
             title = ln[2:].strip()
             front_heading(doc, title, new_page=not first)
-            centered = title in FRONT_CENTER_TITLES
+            centered = (title in FRONT_CENTER_TITLES) or first
+            if first:
+                add_rule(doc, indent=3, after=12)
             first = False
+            no_indent = True
         elif ln.startswith("> "):
             add_quote(doc, ln[2:].strip())
             first = False
+            no_indent = True
         elif ln.startswith("- "):
             add_bullet(doc, ln[2:].strip())
             first = False
+            no_indent = True
         elif ln.startswith("|"):
             tbl = []
             while i < len(lines) and lines[i].strip().startswith("|"):
@@ -432,6 +508,7 @@ def build_front_file(doc, path):
                 i += 1
             add_table(doc, parse_table_block(tbl))
             first = False
+            no_indent = True
             continue
         elif ln.startswith("کلیدواژه‌ها"):
             p = doc.add_paragraph()
@@ -441,20 +518,31 @@ def build_front_file(doc, path):
             rest = ln.split(":", 1)[-1].strip()
             add_runs(p, rest, font="B Lotus", size=14)
             first = False
+            no_indent = False
+        elif is_latin(ln):
+            p = doc.add_paragraph()
+            set_para_ltr(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=6)
+            if not no_indent:
+                p.paragraph_format.first_line_indent = Cm(0.5)
+            add_runs(p, ln, font="B Lotus", size=13)
+            first = False
+            no_indent = False
         else:
             p = doc.add_paragraph()
             if centered:
                 set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=8)
             else:
                 set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, after=6)
-                p.paragraph_format.first_line_indent = Cm(0.5)
+                if not no_indent:
+                    p.paragraph_format.first_line_indent = Cm(0.5)
             add_runs(p, ln, font="B Lotus", size=14)
             first = False
+            no_indent = False
         i += 1
 
 
 def add_toc(doc):
-    front_heading(doc, "فهرست مطالب", new_page=True)
+    front_heading(doc, "فهرست مطالب", new_page=True, framed=True)
     p = doc.add_paragraph()
     set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=6)
     # فیلد فهرست خودکار
@@ -530,8 +618,9 @@ def setup_styles(doc):
         if outline is not None:
             set_outline(st, outline)
 
-    # استایل‌های فهرست مطالب (راست‌به‌چپ + نقطه‌چین شماره صفحه)
+    # استایل‌های فهرست مطالب (راست‌به‌چپ + نقطه‌چین شماره صفحه + تورفتگی پلکانی)
     styles_el = doc.styles.element
+    toc_indent = {1: 0, 2: 284, 3: 567, 4: 851}
     for idx in range(1, 5):
         sid = f"TOC{idx}"
         if sid in [s.style_id for s in styles]:
@@ -552,6 +641,10 @@ def setup_styles(doc):
         jc = OxmlElement("w:jc")
         jc.set(qn("w:val"), "right")
         pPr.append(jc)
+        if toc_indent[idx]:
+            ind = OxmlElement("w:ind")
+            ind.set(qn("w:right"), str(toc_indent[idx]))
+            pPr.append(ind)
         tabs = OxmlElement("w:tabs")
         tab = OxmlElement("w:tab")
         tab.set(qn("w:val"), "right")
@@ -599,11 +692,6 @@ def setup_main_header(section):
 def setup_main_footer(section):
     footer = section.footer
     footer.is_linked_to_previous = False
-    while len(footer.paragraphs) > 1:
-        tr = footer.paragraphs[-1]._p
-        tr.getparent().remove(tr)
-    for tbl in list(footer.tables):
-        tbl._tbl.getparent().remove(tbl._tbl)
     p = footer.paragraphs[0]
     p.text = ""
     pPr = p._p.get_or_add_pPr()
@@ -617,15 +705,15 @@ def setup_main_footer(section):
     pf.line_spacing = 1.2
     add_top_border(p)
     run = p.add_run("صفحه ")
-    style_run(run, font="B Lotus", size=11)
-    add_field(p, "PAGE \\* MERGEFORMAT", font="B Lotus", size=11)
+    style_run(run, font="B Lotus", size=11, bold=True)
+    add_field(p, "PAGE \\* MERGEFORMAT", font="B Lotus", size=11, bold=True)
 
 
 # ---------- پاورقی (تزریق پس از ذخیره) ----------
 
 def build_footnotes_xml():
     parts = ['<w:footnotes xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">']
-    parts.append('<w:footnote w:id="0" w:type="separator"><w:p><w:r><w:separator/></w:r></w:p></w:footnote>')
+    parts.append('<w:footnote w:id="0" w:type="separator"><w:p><w:pPr><w:bidi w:val="1"/><w:jc w:val="right"/></w:pPr><w:r><w:separator/></w:r></w:p></w:footnote>')
     parts.append('<w:footnote w:id="1" w:type="continuationSeparator"><w:p><w:r><w:continuationSeparator/></w:r></w:p></w:footnote>')
     for i, text in enumerate(footnotes, start=2):
         parts.append(
@@ -674,7 +762,11 @@ def inject_footnotes(docx_path):
 def main():
     doc = Document()
     setup_styles(doc)
-    setup_page(doc.sections[0])
+
+    # بخش ۱: جلد (با قاب دور صفحه)
+    cover_section = doc.sections[0]
+    setup_page(cover_section)
+    add_page_border(cover_section)
     cp = doc.core_properties
     cp.title = TITLE_MAIN + " " + TITLE_SUB
     cp.author = AUTHOR
@@ -686,13 +778,18 @@ def main():
     doc.settings.element.append(uf)
 
     add_cover(doc)
+
+    # بخش ۲: صفحات آغازین
+    doc.add_section(WD_SECTION.NEW_PAGE)
+    front_section = doc.sections[1]
+    setup_page(front_section)
     add_basmalah(doc)
     build_front_file(doc, f"{SRC}/00_front.md")
     add_toc(doc)
 
-    # بخش اصلی: شماره صفحه از ۱ + سرصفحه هوشمند
+    # بخش ۳: متن اصلی؛ شماره صفحه از ۱ + سرصفحه هوشمند
     doc.add_section(WD_SECTION.NEW_PAGE)
-    main_section = doc.sections[1]
+    main_section = doc.sections[2]
     setup_page(main_section)
     pg = OxmlElement("w:pgNumType")
     pg.set(qn("w:start"), "1")
