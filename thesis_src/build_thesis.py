@@ -356,19 +356,23 @@ def add_body(doc, text, indent=True):
     add_runs(p, text, font="B Lotus", size=14)
 
 
-def add_quote(doc, text):
+def add_quote(doc, text, full_width=False):
     p = doc.add_paragraph(style="TH-Quote")
     set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=12, before=12)
     pf = p.paragraph_format
-    pass  # تمام‌عرض از لبه راست
+    if not full_width:
+        pf.right_indent = Cm(1)
+        pf.left_indent = Cm(1)
     add_shading(p, "F2F2F2")
     add_box_border(p)
     add_runs(p, text, font="B Badr", size=13, bold=True)
 
 
-def add_bullet(doc, text):
+def add_bullet(doc, text, full_width=False):
     p = doc.add_paragraph(style="TH-Body")
     set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=6)
+    if not full_width:
+        p.paragraph_format.right_indent = Cm(0.75)
     run = p.add_run("• ")
     style_run(run, font="B Lotus", size=14, bold=True)
     add_runs(p, text, font="B Lotus", size=14)
@@ -402,10 +406,10 @@ def build_content_file(doc, path):
         elif ln == ">":
             pass
         elif ln.startswith("> "):
-            add_quote(doc, ln[2:].strip())
+            add_quote(doc, ln[2:].strip(), full_width=True)
             no_indent = True
         elif ln.startswith("- "):
-            add_bullet(doc, ln[2:].strip())
+            add_bullet(doc, ln[2:].strip(), full_width=True)
             no_indent = True
         elif ln.startswith("|"):
             tbl = []
@@ -544,6 +548,8 @@ def build_front_file(doc, path):
                 set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=10)
             else:
                 set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=10)
+                if not no_indent:
+                    p.paragraph_format.first_line_indent = Cm(0.5)
             add_runs(p, ln, font="B Lotus", size=14)
             first = False
             no_indent = False
@@ -718,7 +724,7 @@ def setup_styles(doc):
 
     # استایل‌های فهرست مطالب (راست‌به‌چپ + نقطه‌چین شماره صفحه + تورفتگی پلکانی)
     styles_el = doc.styles.element
-    toc_indent = {1: 0, 2: 0, 3: 0, 4: 0}
+    toc_indent = {1: 0, 2: 284, 3: 567, 4: 851}
     for idx in range(1, 5):
         sid = f"TOC{idx}"
         if sid in [s.style_id for s in styles]:
