@@ -589,29 +589,46 @@ def setup_page(section):
 def setup_main_header(section):
     header = section.header
     header.is_linked_to_previous = False
-    p0 = header.paragraphs[0]
+    p = header.paragraphs[0]
+    p.text = ""
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=2, before=0)
+    add_bottom_border(p, color="BFBFBF", sz="6")
+    add_field(p, 'STYLEREF "TH-Fasl" \\* MERGEFORMAT', font="B Lotus", size=10)
+
+
+def setup_main_footer(section):
+    footer = section.footer
+    footer.is_linked_to_previous = False
+    p0 = footer.paragraphs[0]
     p0.text = ""
-    table = header.add_table(rows=1, cols=2, width=Cm(16))
+    table = footer.add_table(rows=1, cols=2, width=Cm(16))
     table.autofit = True
     tblPr = table._tbl.tblPr
     bidi = OxmlElement("w:bidiVisual")
     tblPr.append(bidi)
     borders = OxmlElement("w:tblBorders")
-    for edge in ("top", "left", "bottom", "right", "insideH", "insideV"):
+    for edge in ("left", "bottom", "right", "insideH", "insideV"):
         el = OxmlElement(f"w:{edge}")
         el.set(qn("w:val"), "nil")
         el.set(qn("w:sz"), "0")
         el.set(qn("w:space"), "0")
         el.set(qn("w:color"), "auto")
         borders.append(el)
+    top = OxmlElement("w:top")
+    top.set(qn("w:val"), "single")
+    top.set(qn("w:sz"), "6")
+    top.set(qn("w:space"), "6")
+    top.set(qn("w:color"), "BFBFBF")
+    borders.append(top)
     tblPr.append(borders)
-    # خانه راست: عنوان فصل جاری
+    # خانه راست: عنوان رساله
     c0 = table.cell(0, 0)
     c0.width = Cm(11)
     c0.text = ""
     p = c0.paragraphs[0]
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=0, before=0)
-    add_field(p, 'STYLEREF "TH-Fasl" \\* MERGEFORMAT', font="B Lotus", size=10)
+    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.RIGHT, after=0, before=4)
+    add_runs(p, "رساله علمی سطح سه ـ " + AUTHOR, font="B Lotus", size=9,
+             color=RGBColor(0x59, 0x56, 0x59))
     # خانه چپ: شماره صفحه
     c1 = table.cell(0, 1)
     c1.width = Cm(5)
@@ -626,20 +643,13 @@ def setup_main_header(section):
     bidi_p = OxmlElement("w:bidi")
     bidi_p.set(qn("w:val"), "1")
     pPr.append(bidi_p)
+    pf = p.paragraph_format
+    pf.space_before = Pt(4)
+    pf.space_after = Pt(0)
+    pf.line_spacing = 1.2
     run = p.add_run("صفحه ")
     style_run(run, font="B Lotus", size=10)
     add_field(p, "PAGE \\* MERGEFORMAT", font="B Lotus", size=10)
-
-
-def setup_main_footer(section):
-    footer = section.footer
-    footer.is_linked_to_previous = False
-    p = footer.paragraphs[0]
-    p.text = ""
-    set_para_rtl(p, align=WD_ALIGN_PARAGRAPH.CENTER, after=0, before=6)
-    add_top_border(p)
-    add_runs(p, "رساله علمی سطح سه ـ " + AUTHOR, font="B Lotus", size=9,
-             color=RGBColor(0x59, 0x56, 0x59))
 
 
 # ---------- پاورقی (تزریق پس از ذخیره) ----------
